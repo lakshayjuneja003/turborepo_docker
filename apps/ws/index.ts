@@ -1,0 +1,22 @@
+import prisma from "db/client";
+
+Bun.serve({
+    port:8081,
+    fetch(req , server) {
+        if(server.upgrade(req)) {
+            return;
+        }
+        return new Response("Upgrade failed for WebSocket server!" , {status:500});
+    },
+    websocket: {
+        message(ws, message) {
+            prisma.user.create({
+                data:{
+                    username:Math.random().toString(36).substring(7),
+                    password:Math.random().toString(36).substring(7)
+                }
+            })
+            ws.send(message)
+        }
+    }
+})

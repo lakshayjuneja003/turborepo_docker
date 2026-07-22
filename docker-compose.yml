@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgresdb1
+    environment:
+      POSTGRES_PASSWORD: mysercetpassword
+    ports:
+      - "5432:5432"
+
+  backendapp:
+    build:
+      context: ./
+      dockerfile: docker/dockerfile.backend
+    environment:
+      DATABASE_URL: postgresql://postgres:mysercetpassword@postgresdb1:5432/postgres
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+
+  wsapp:
+    build:
+      context: ./
+      dockerfile: docker/dockerfile.ws
+    environment:
+      DATABASE_URL: postgresql://postgres:mysercetpassword@postgresdb1:5432/postgres
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+  webapp:
+    build:
+      context: ./
+      dockerfile: docker/dockerfile.frontend
+    environment:
+      DATABASE_URL: postgresql://postgres:mysercetpassword@postgresdb1:5432/postgres
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
